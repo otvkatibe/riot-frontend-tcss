@@ -18,9 +18,10 @@ export default function Register() {
     try {
       await register(email, password, name);
       // O toast de sucesso já está no AuthContext
-      navigate("/dashboard");
+      navigate("/login"); // Redireciona para a página de login
     } catch (error) {
       // O toast de erro já está no AuthContext
+      // Nenhuma ação adicional necessária aqui, pois o toast já foi exibido
     } finally {
       setIsSubmitting(false);
     }

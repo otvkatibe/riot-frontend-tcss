@@ -21,18 +21,24 @@ API.interceptors.request.use(
 
 
 export const login = async (email, password) => {
+  // O backend deve retornar { token, user: { id, name, email } }
   const { data } = await API.post("/user/login", { email, password });
-  return data; // Espera-se { token, user }
+  return data; 
 };
 
 export const register = async (email, password, name) => {
+  // O backend deve retornar algo como { message: "Usuário registrado com sucesso", userId: "..." }
+  // Não esperamos um token aqui para evitar login automático.
   const { data } = await API.post("/user/register", { email, password, name });
-  return data; // Espera-se { token, user }
+  return data; 
 };
 
-// Rota para buscar dados do usuário autenticado (exemplo, backend precisa implementar /user/me)
+// Rota para buscar dados do usuário autenticado
 export const getMe = async () => {
-  const { data } = await API.get("/user/me"); // Ajuste este endpoint conforme seu backend
+  // Esta rota deve ser protegida no backend e retornar os dados do usuário logado
+  // com base no token JWT enviado no header Authorization (o interceptor já faz isso).
+  // Exemplo de retorno esperado: { id, name, email }
+  const { data } = await API.get("/user/me"); 
   return data;
 };
 
