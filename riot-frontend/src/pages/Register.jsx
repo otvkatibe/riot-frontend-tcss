@@ -2,66 +2,81 @@ import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import { LoadingSpinner } from "../components/LoadingSpinner";
 
 export default function Register() {
   const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const { register } = useAuth();
+  const [name, setName] = useState(""); // 'name' como no AuthForm do usuário
+  const { register, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setIsSubmitting(true);
     try {
-      await register(email, password, username);
-      toast.success("Conta criada com sucesso!");
+      await register(email, password, name);
+      // O toast de sucesso já está no AuthContext
       navigate("/dashboard");
-    } catch {
-      toast.error("Erro ao registrar. Tente outro e-mail.");
+    } catch (error) {
+      // O toast de erro já está no AuthContext
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
+  
+  const isLoading = authLoading || isSubmitting;
 
   return (
-    <div className="min-h-screen bg-lolblue flex items-center justify-center">
-      <form onSubmit={handleSubmit} className="bg-lolblack p-8 rounded shadow-lg w-full max-w-md">
-        <h2 className="text-2xl font-bold text-lolgold mb-6">Registrar</h2>
-        <input
-          className="w-full mb-4 p-2 rounded bg-lolgray text-lolblue"
-          type="text"
-          placeholder="Nome de usuário"
-          value={username}
-          onChange={e => setUsername(e.target.value)}
-          required
-        />
-        <input
-          className="w-full mb-4 p-2 rounded bg-lolgray text-lolblue"
-          type="email"
-          placeholder="E-mail"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          required
-        />
-        <input
-          className="w-full mb-6 p-2 rounded bg-lolgray text-lolblue"
-          type="password"
-          placeholder="Senha"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          required
-        />
-        <button
-          type="submit"
-          className="w-full bg-lolgold text-lolblue font-bold py-2 rounded hover:bg-yellow-600 transition"
-          disabled={loading}
+    <div className="flex-grow flex items-center justify-center p-4">
+      <form onSubmit={handleSubmit} className="w-full max-w-md bg-theme-input-bg border-2 border-theme-border p-6 sm:p-8 rounded-lg shadow-2xl shadow-black/50">
+        <h2 className="text-3xl font-bold text-theme-gold-text mb-6 text-center">Criar Conta</h2>
+        <div className="mb-4">
+          <label className="text-theme-primary-text block mb-2">Nome</label>
+          <input 
+            type="text" 
+            value={name} 
+            onChange={e => setName(e.target.value)} 
+            className="w-full p-3 bg-theme-input-bg border border-theme-border rounded-md text-theme-primary-text focus:outline-none focus:ring-2 focus:ring-theme-border" 
+            required 
+            disabled={isLoading}
+          />
+        </div>
+        <div className="mb-4">
+          <label className="text-theme-primary-text block mb-2">Email</label>
+          <input 
+            type="email" 
+            value={email} 
+            onChange={e => setEmail(e.target.value)} 
+            className="w-full p-3 bg-theme-input-bg border border-theme-border rounded-md text-theme-primary-text focus:outline-none focus:ring-2 focus:ring-theme-border" 
+            required 
+            disabled={isLoading}
+          />
+        </div>
+        <div className="mb-6">
+          <label className="text-theme-primary-text block mb-2">Senha</label>
+          <input 
+            type="password" 
+            value={password} 
+            onChange={e => setPassword(e.target.value)} 
+            className="w-full p-3 bg-theme-input-bg border border-theme-border rounded-md text-theme-primary-text focus:outline-none focus:ring-2 focus:ring-theme-border" 
+            required 
+            disabled={isLoading}
+          />
+        </div>
+        <button 
+          type="submit" 
+          disabled={isLoading} 
+          className="w-full p-3 bg-theme-button-bg text-theme-gold-text border-2 border-theme-border rounded-md font-bold transition-all duration-300 hover:bg-theme-button-hover disabled:opacity-50 flex justify-center items-center h-12"
         >
-          {loading ? "Registrando..." : "Registrar"}
+          {isLoading ? <LoadingSpinner size="small" /> : 'Registrar'}
         </button>
-        <p className="mt-4 text-lolgray text-sm">
-          Já tem conta? <Link to="/login" className="text-lolgold underline">Entrar</Link>
+        <p className="mt-6 text-center text-sm sm:text-base text-theme-primary-text">
+          Já tem uma conta?{" "}
+          <Link to="/login" className="text-theme-gold-text cursor-pointer hover:underline">
+            Faça Login
+          </Link>
         </p>
       </form>
     </div>

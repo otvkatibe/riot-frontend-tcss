@@ -2,57 +2,71 @@ import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import { LoadingSpinner } from "../components/LoadingSpinner";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { login } = useAuth();
+  const { login, loading: authLoading } = useAuth(); // Renomeado para authLoading para evitar conflito
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false); // Loading específico do formulário
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setIsSubmitting(true);
     try {
       await login(email, password);
-      toast.success("Login realizado com sucesso!");
+      // O toast de sucesso já está no AuthContext
       navigate("/dashboard");
-    } catch {
-      toast.error("Credenciais inválidas.");
+    } catch (error) {
+      // O toast de erro já está no AuthContext
+      // Se precisar de tratamento adicional, adicione aqui
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
+  const isLoading = authLoading || isSubmitting;
+
   return (
-    <div className="min-h-screen bg-lolblue flex items-center justify-center">
-      <form onSubmit={handleSubmit} className="bg-lolblack p-8 rounded shadow-lg w-full max-w-md">
-        <h2 className="text-2xl font-bold text-lolgold mb-6">Entrar</h2>
-        <input
-          className="w-full mb-4 p-2 rounded bg-lolgray text-lolblue"
-          type="email"
-          placeholder="E-mail"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          required
-        />
-        <input
-          className="w-full mb-6 p-2 rounded bg-lolgray text-lolblue"
-          type="password"
-          placeholder="Senha"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          required
-        />
-        <button
-          type="submit"
-          className="w-full bg-lolgold text-lolblue font-bold py-2 rounded hover:bg-yellow-600 transition"
-          disabled={loading}
+    <div className="flex-grow flex items-center justify-center p-4">
+      <form onSubmit={handleSubmit} className="w-full max-w-md bg-theme-input-bg border-2 border-theme-border p-6 sm:p-8 rounded-lg shadow-2xl shadow-black/50">
+        <h2 className="text-3xl font-bold text-theme-gold-text mb-6 text-center">Login</h2>
+        <div className="mb-4">
+          <label className="text-theme-primary-text block mb-2">Email</label>
+          <input 
+            type="email" 
+            value={email} 
+            onChange={e => setEmail(e.target.value)} 
+            className="w-full p-3 bg-theme-input-bg border border-theme-border rounded-md text-theme-primary-text focus:outline-none focus:ring-2 focus:ring-theme-border" 
+            required 
+            disabled={isLoading}
+          />
+        </div>
+        <div className="mb-6">
+          <label className="text-theme-primary-text block mb-2">Senha</label>
+          <input 
+            type="password" 
+            value={password} 
+            onChange={e => setPassword(e.target.value)} 
+            className="w-full p-3 bg-theme-input-bg border border-theme-border rounded-md text-theme-primary-text focus:outline-none focus:ring-2 focus:ring-theme-border" 
+            required 
+            disabled={isLoading}
+            autoComplete="current-password"
+          />
+        </div>
+        <button 
+          type="submit" 
+          disabled={isLoading} 
+          className="w-full p-3 bg-theme-button-bg text-theme-gold-text border-2 border-theme-border rounded-md font-bold transition-all duration-300 hover:bg-theme-button-hover disabled:opacity-50 flex justify-center items-center h-12"
         >
-          {loading ? "Entrando..." : "Entrar"}
+          {isLoading ? <LoadingSpinner size="small" /> : 'Entrar'}
         </button>
-        <p className="mt-4 text-lolgray text-sm">
-          Não tem conta? <Link to="/register" className="text-lolgold underline">Registre-se</Link>
+        <p className="mt-6 text-center text-sm sm:text-base text-theme-primary-text">
+          Não tem uma conta?{" "}
+          <Link to="/register" className="text-theme-gold-text cursor-pointer hover:underline">
+            Registre-se
+          </Link>
         </p>
       </form>
     </div>

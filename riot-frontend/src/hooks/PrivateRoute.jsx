@@ -1,7 +1,7 @@
 import axios from "axios";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import Loading from "../components/Loading";
+import { LoadingSpinner } from "../components/LoadingSpinner"; // Alterado para importação nomeada
 
 const API = axios.create({
   baseURL: "https://riot-backend.vercel.app/", // ajuste se necessário
@@ -29,7 +29,7 @@ export const logout = async () => {
 
 export default function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
-  if (loading) return <Loading />;
+  if (loading) return <LoadingSpinner />; // Alterado para usar LoadingSpinner
   if (!user) return <Navigate to="/login" />;
   return children;
 }
