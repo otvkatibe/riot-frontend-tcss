@@ -66,29 +66,43 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     setLoading(true);
     try {
-      // apiLogin já deve usar a instância do Axios com a baseURL correta
-      const response = await apiLogin(email, password); // Backend retorna { token, user }
-      const { token: authToken, user: userData } = response;
+      const response = await apiLogin(email, password); // apiLogin retorna { message, token }
+      console.log("Resposta da API de Login:", response); 
+      
+      // Ajuste na desestruturação e verificação
+      const { token: authToken, message } = response; // Esperamos 'token' e opcionalmente 'message'
 
-      if (!authToken || !userData) {
-        throw new Error("Resposta de login inválida do servidor.");
+      if (!authToken) { // Verificamos apenas se o token foi recebido
+        // Se o backend não enviar token em caso de sucesso, isso é um problema no backend.
+        // Mas se a mensagem de sucesso vier sem token, consideramos inválido.
+        throw new Error(message || "Token não recebido do servidor.");
       }
 
-      setUser(userData);
+      // O token foi recebido. Agora vamos definir o token no estado.
+      // O useEffect que observa 'token' se encarregará de chamar getMe() para buscar os dados do usuário.
       setToken(authToken);
       localStorage.setItem('userToken', authToken);
-      localStorage.setItem('userData', JSON.stringify(userData));
-      toast.success('Login realizado com sucesso!');
-      return { token: authToken, user: userData };
+      
+      // Não definimos 'user' ou 'localStorage.setItem('userData', ...)' aqui.
+      // Isso será feito após a chamada bem-sucedida de getMe().
+
+      toast.success(message || 'Login realizado com sucesso!'); // Usa a mensagem do backend se disponível
+      
+      // Retornamos apenas o token, pois os dados do usuário virão de getMe
+      return { token: authToken }; 
+
     } catch (error) {
+      // Se o erro já for "Token não recebido...", ele será pego aqui.
+      // Se for um erro da requisição (ex: 401, 400), error.response.data.message deve existir.
       const errorMessage = error.response?.data?.message || error.message || "Erro ao fazer login.";
       toast.error(errorMessage);
+      
       // Limpar qualquer resquício em caso de falha
       localStorage.removeItem('userToken');
-      localStorage.removeItem('userData');
-      setUser(null);
-      setToken(null);
-      throw error; // Re-throw para a página de Login lidar se necessário
+      localStorage.removeItem('userData'); // Limpa userData também
+      setUser(null); // Garante que o usuário seja nulo
+      setToken(null); // Garante que o token seja nulo
+      throw error; 
     } finally {
       setLoading(false);
     }
