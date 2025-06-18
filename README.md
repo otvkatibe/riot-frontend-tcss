@@ -1,107 +1,100 @@
 # LoL Stats - Verificador de Estatísticas de League of Legends
 
-LoL Stats é uma aplicação web que permite aos usuários buscar estatísticas de jogadores de League of Legends, visualizar seus ranks, nível e adicionar jogadores a uma lista de favoritos. O projeto utiliza React com Vite para o frontend e se conecta a um backend para autenticação e para buscar dados da API da Riot Games.
+LoL Stats é uma aplicação web interativa construída com React e Tailwind CSS que permite aos usuários buscar estatísticas detalhadas de jogadores de League of Legends. A plataforma oferece funcionalidades de autenticação, busca de perfis, visualização de maestrias de campeões e um sistema de favoritos.
 
 ## Funcionalidades Principais
 
 *   **Autenticação de Usuários:**
-    *   Registro de novas contas.
-    *   Login para usuários existentes.
-    *   Sessão persistente (o usuário continua logado após recarregar a página).
-*   **Busca de Jogadores:**
-    *   Pesquisa de jogadores de League of Legends por Nome de Invocador e Tag.
-    *   Exibição de informações do jogador, incluindo:
-        *   Nome de Invocador e Tag.
-        *   Ícone de Perfil.
-        *   Nível de Invocador.
-        *   Estatísticas de Ranqueadas Solo/Duo e Flex (Tier, Rank, PDL, Vitórias/Derrotas).
-*   **Sistema de Favoritos:**
-    *   Adicionar jogadores pesquisados à lista de favoritos (requer login).
-    *   Remover jogadores da lista de favoritos.
-    *   Visualizar a lista de jogadores favoritos no Dashboard.
-*   **Interface Responsiva:**
-    *   Design adaptável para diferentes tamanhos de tela.
-    *   Notificações (toasts) para feedback ao usuário.
+    *   Sistema completo de registro e login.
+    *   Sessão de usuário persistente com JWT, mantendo o usuário conectado.
+    *   Rotas protegidas, como o Dashboard, acessíveis apenas para usuários autenticados.
 
-## Tecnologias Utilizadas (Frontend)
+*   **Busca e Visualização de Jogadores:**
+    *   Pesquisa de jogadores por Nome de Invocador e Tag.
+    *   Exibição de um card de perfil com:
+        *   Ícone de perfil, nome e nível.
+        *   Ranks detalhados para as filas Solo/Duo e Flex (elo, divisão, PDL, vitórias e derrotas).
 
-*   **React (v19+):** Biblioteca JavaScript para construção de interfaces de usuário.
-*   **Vite:** Ferramenta de build e servidor de desenvolvimento rápido.
-*   **Tailwind CSS:** Framework CSS utility-first para estilização rápida.
-*   **React Router DOM (v6+):** Para gerenciamento de rotas na aplicação.
-*   **Axios:** Cliente HTTP para realizar requisições à API backend.
-*   **React Toastify:** Para exibir notificações (toasts) amigáveis.
-*   **ESLint:** Para linting de código JavaScript/JSX.
+*   **Análise de Campeões:**
+    *   **Lista de Maestrias:** Exibe os 10 campeões com maior pontuação de maestria do jogador pesquisado.
+    *   **Modal de Estatísticas Detalhadas:** Ao clicar no ícone de um campeão, um modal exibe estatísticas agregadas (KDA, Win Rate, CS/min) e um **histórico de partidas recentes** com aquele campeão, mostrando KDA, duração, CS, rota (lane) e função (role) de cada jogo.
+
+*   **Sistema de Favoritos (Requer Login):**
+    *   Adicione ou remova jogadores pesquisados da sua lista de favoritos com um clique.
+    *   **Busca Rápida:** Clique em um jogador na sua lista de favoritos para buscá-lo instantaneamente.
+    *   Visualize e gerencie sua lista de jogadores favoritos no Dashboard.
+
+*   **Interface Moderna e Responsiva:**
+    *   Design construído com Tailwind CSS, totalmente adaptável para desktops e dispositivos móveis.
+    *   Notificações (toasts) para fornecer feedback claro sobre as ações do usuário.
+
+## Tecnologias Utilizadas
+
+*   **Frontend:**
+    *   **React:** Biblioteca para construção de interfaces de usuário.
+    *   **Vite:** Ferramenta de build e servidor de desenvolvimento de alta performance.
+    *   **Tailwind CSS:** Framework CSS utility-first para estilização rápida e consistente.
+    *   **React Router DOM:** Para gerenciamento de rotas na aplicação.
+    *   **Axios:** Cliente HTTP para realizar requisições à API do backend.
+    *   **React Toastify:** Para exibir notificações amigáveis.
+*   **Backend (Dependência):**
+    *   A aplicação consome uma API backend (Node.js/Express) responsável pela autenticação, gerenciamento de favoritos e por atuar como um proxy seguro para a API oficial da Riot Games.
 
 ## Pré-requisitos
 
-*   Node.js (versão 18.x ou superior recomendada)
+*   Node.js (versão 18.x ou superior)
 *   npm, yarn ou pnpm
-*   Um backend configurado e em execução que sirva os endpoints esperados (autenticação, proxy para Riot API, gerenciamento de favoritos).
+*   Um backend compatível em execução.
 
-## Como Executar o Frontend
+## Como Executar o Projeto
 
-1.  **Clone o repositório (se ainda não o fez):**
+1.  **Clone o repositório:**
     ```bash
     git clone <url-do-seu-repositorio>
-    cd <nome-do-repositorio>/riot-frontend
+    cd <nome-do-repositorio>
     ```
 
 2.  **Instale as dependências:**
     ```bash
     npm install
     ```
-    ou
-    ```bash
-    yarn install
-    ```
 
-3.  **Configure as Variáveis de Ambiente (se necessário):**
-    *   Este projeto, como configurado em `#src/api/Auth.jsx`, aponta para `https://riot-backend.vercel.app` como `baseURL`. Se o seu backend estiver em outro local, você pode:
-        *   Alterar diretamente no arquivo `#src/api/Auth.jsx`.
-        *   (Recomendado para flexibilidade) Modificar para usar uma variável de ambiente Vite (ex: `import.meta.env.VITE_API_BASE_URL`) e criar um arquivo `.env` na raiz de `riot-frontend` com:
-            ```env
-            VITE_API_BASE_URL=http://localhost:3001 # Ou a URL do seu backend
-            ```
+3.  **Configure a URL da API:**
+    *   A URL base da API está definida no arquivo `src/api/Auth.jsx`. Por padrão, está configurada como `https://riot-backend.vercel.app`.
+    *   Se o seu backend estiver rodando em outro endereço, altere a propriedade `baseURL` neste arquivo:
+    
+    ```javascript
+    // em src/api/Auth.jsx
+    const API = axios.create({
+      baseURL: "http://localhost:3001", // Altere para a URL do seu backend
+      withCredentials: true,
+    });
+    ```
 
 4.  **Inicie o servidor de desenvolvimento:**
     ```bash
     npm run dev
     ```
-    ou
-    ```bash
-    yarn dev
-    ```
-    A aplicação estará disponível em `http://localhost:5173` (ou outra porta, se a 5173 estiver ocupada).
+    A aplicação estará disponível em `http://localhost:5173` (ou em outra porta, caso a 5173 esteja em uso).
 
 ## Scripts Disponíveis
 
-No diretório `riot-frontend`, você pode executar os seguintes scripts:
+*   `npm run dev`: Inicia o servidor de desenvolvimento com Hot Module Replacement (HMR).
+*   `npm run build`: Compila a aplicação para produção na pasta `dist`.
+*   `npm run lint`: Executa o ESLint para verificar erros e padrões de código.
+*   `npm run preview`: Inicia um servidor local para visualizar a build de produção.
 
-*   `npm run dev` ou `yarn dev`:
-    Inicia o servidor de desenvolvimento Vite com Hot Module Replacement (HMR).
-
-*   `npm run build` ou `yarn build`:
-    Compila a aplicação para produção na pasta `dist`.
-
-*   `npm run lint` ou `yarn lint`:
-    Executa o ESLint para verificar erros e padrões de código.
-
-*   `npm run preview` ou `yarn preview`:
-    Inicia um servidor local para visualizar a build de produção (após executar `npm run build`).
-
-## Estrutura de Pastas (Frontend - `src`)
+## Estrutura de Pastas (`src`)
 
 ```
 src/
-├── api/              # Lógica de comunicação com a API backend (Auth, RiotApi)
-├── components/       # Componentes React reutilizáveis (Header, PlayerCard, etc.)
-│   └── icons/        # Componentes de ícones SVG
-├── contexts/         # Contextos React (ex: AuthContext para gerenciamento de autenticação)
-├── hooks/            # Hooks personalizados (ex: PrivateRoute)
-├── pages/            # Componentes de página (Dashboard, Home, Login, Register)
-├── App.jsx           # Componente principal da aplicação, define rotas e layout base
-├── App.css           # Estilos globais (se houver, a maior parte é Tailwind)
-├── index.css         # Configurações base do Tailwind e estilos globais
-└── main.jsx          # Ponto de entrada da aplicação React
+├── api/          # Módulos para comunicação com a API (Auth, RiotApi)
+├── components/   # Componentes React reutilizáveis (Header, PlayerCard, etc.)
+│   └── icons/    # Componentes de ícones SVG
+├── contexts/     # Contextos React (AuthContext para gerenciamento de sessão)
+├── hooks/        # Hooks personalizados (PrivateRoute)
+├── pages/        # Componentes de página (Dashboard, Home, Login, Register)
+├── App.jsx       # Componente principal, define rotas e layout
+├── index.css     # Configurações base do Tailwind e estilos globais
+└── main.jsx      # Ponto de entrada da aplicação React
 ```

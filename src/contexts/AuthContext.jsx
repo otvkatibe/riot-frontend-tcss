@@ -4,6 +4,12 @@ import { toast } from "react-toastify";
 
 const AuthContext = createContext(null);
 
+/**
+ * Provedor de autenticação que gerencia o estado do usuário (usuário, token, loading).
+ * Fornece funções de login, logout e registro para os componentes filhos.
+ * @param {{ children: React.ReactNode }} props - Os componentes filhos que terão acesso ao contexto.
+ * @returns {JSX.Element} O provedor de contexto.
+ */
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(() => localStorage.getItem('userToken'));
@@ -11,10 +17,10 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const storedUser = localStorage.getItem('userData');
-    const storedToken = localStorage.getItem('userToken'); // Pegar o token também
+    const storedToken = localStorage.getItem('userToken');
 
     if (storedToken) {
-      setToken(storedToken); // Atualiza o estado do token
+      setToken(storedToken);
       if (storedUser && storedUser !== 'undefined') {
         try {
           setUser(JSON.parse(storedUser));
@@ -27,20 +33,17 @@ export function AuthProvider({ children }) {
         }
       }
     }
-    setLoading(false); // Inicialmente, paramos o loading após checar o localStorage
-  }, []); // Executa apenas uma vez ao montar
+    setLoading(false);
+  }, []);
 
-  // Validar token com o backend e buscar dados do usuário se o token existir mas o usuário não
   useEffect(() => {
     const validateTokenAndFetchUser = async () => {
-      const currentToken = localStorage.getItem('userToken'); // Pega o token mais atual
-      if (currentToken && !user) { // Se temos token mas não usuário no estado
+      const currentToken = localStorage.getItem('userToken');
+      if (currentToken && !user) {
         setLoading(true);
         try {
-          // Adiciona o token ao header para a chamada getMe
-          // O interceptor do Axios em api/Auth.jsx já deve fazer isso se getMe usar a instância API
-          const userDataFromApi = await getMe(); // getMe deve usar a instância API configurada com interceptor
-          setUser(userDataFromApi); // Assumindo que getMe retorna o objeto do usuário
+          const userDataFromApi = await getMe();
+          setUser(userDataFromApi);
           localStorage.setItem('userData', JSON.stringify(userDataFromApi));
         } catch (error) {
           console.error("Sessão inválida ou expirada:", error);
@@ -48,93 +51,84 @@ export function AuthProvider({ children }) {
           localStorage.removeItem('userData');
           setToken(null);
           setUser(null);
-          // Não mostra toast aqui para não poluir em cada carregamento de página não autenticada
         } finally {
           setLoading(false);
         }
       } else if (!currentToken) {
-        // Se não há token, garante que o usuário também não está definido
         setUser(null);
-        localStorage.removeItem('userData'); // Limpa por segurança
+        localStorage.removeItem('userData');
       }
     };
 
     validateTokenAndFetchUser();
-  }, [token]); // Re-executa se o estado do token mudar (ex: após login/logout)
+  }, [token]);
 
 
+  /**
+   * Realiza o login do usuário, obtém um token e o armazena.
+   * @param {string} email - O email do usuário.
+   * @param {string} password - A senha do usuário.
+   * @returns {Promise<{token: string}>} O token de autenticação.
+   */
   const login = async (email, password) => {
     setLoading(true);
     try {
-      const response = await apiLogin(email, password); // apiLogin retorna { message, token }
-      console.log("Resposta da API de Login:", response); 
-      
-      // Ajuste na desestruturação e verificação
-      const { token: authToken, message } = response; // Esperamos 'token' e opcionalmente 'message'
+      const response = await apiLogin(email, password);
+      const { token: authToken, message } = response;
 
-      if (!authToken) { // Verificamos apenas se o token foi recebido
-        // Se o backend não enviar token em caso de sucesso, isso é um problema no backend.
-        // Mas se a mensagem de sucesso vier sem token, consideramos inválido.
+      if (!authToken) {
         throw new Error(message || "Token não recebido do servidor.");
       }
 
-      // O token foi recebido. Agora vamos definir o token no estado.
-      // O useEffect que observa 'token' se encarregará de chamar getMe() para buscar os dados do usuário.
       setToken(authToken);
       localStorage.setItem('userToken', authToken);
       
-      // Não definimos 'user' ou 'localStorage.setItem('userData', ...)' aqui.
-      // Isso será feito após a chamada bem-sucedida de getMe().
-
-      toast.success(message || 'Login realizado com sucesso!'); // Usa a mensagem do backend se disponível
+      toast.success(message || 'Login realizado com sucesso!');
       
-      // Retornamos apenas o token, pois os dados do usuário virão de getMe
       return { token: authToken }; 
 
     } catch (error) {
-      // Se o erro já for "Token não recebido...", ele será pego aqui.
-      // Se for um erro da requisição (ex: 401, 400), error.response.data.message deve existir.
       const errorMessage = error.response?.data?.message || error.message || "Erro ao fazer login.";
       toast.error(errorMessage);
       
-      // Limpar qualquer resquício em caso de falha
       localStorage.removeItem('userToken');
-      localStorage.removeItem('userData'); // Limpa userData também
-      setUser(null); // Garante que o usuário seja nulo
-      setToken(null); // Garante que o token seja nulo
+      localStorage.removeItem('userData');
+      setUser(null);
+      setToken(null);
       throw error; 
     } finally {
       setLoading(false);
     }
   };
 
+  /**
+   * Registra um novo usuário no sistema.
+   * @param {string} email - O email do novo usuário.
+   * @param {string} password - A senha do novo usuário.
+   * @param {string} name - O nome do novo usuário.
+   */
   const register = async (email, password, name) => {
     setLoading(true);
     try {
-      // A API de registro do backend (apiRegister) deve apenas criar o usuário
-      // e não retornar token ou dados de usuário para login automático.
-      // Se o backend retornar, nós simplesmente não os usaremos para logar.
-      await apiRegister(email, password, name); // Espera-se que retorne algo como { message: "Usuário registrado..." }
-      
+      await apiRegister(email, password, name);
       toast.success('Registro realizado com sucesso! Por favor, faça o login.');
-      // Não define usuário ou token aqui para evitar login automático
     } catch (error) {
       const errorMessage = error.response?.data?.message || error.message || "Erro ao registrar.";
       toast.error(errorMessage);
-      throw error; // Re-throw para a página de Registro lidar se necessário
+      throw error;
     } finally {
       setLoading(false);
     }
   };
 
+  /**
+   * Desconecta o usuário, limpando o token e os dados do estado e do localStorage.
+   */
   const logout = async () => {
     setLoading(true);
-    // apiLogout pode ser uma chamada ao backend para invalidar o token (se implementado)
-    // ou apenas limpar o lado do cliente.
-    await apiLogout(); // Limpa localStorage em api/Auth.jsx
+    await apiLogout();
     setUser(null);
     setToken(null);
-    // localStorage já foi limpo por apiLogout
     toast.info('Você foi desconectado.');
     setLoading(false);
   };
@@ -146,6 +140,10 @@ export function AuthProvider({ children }) {
   );
 }
 
+/**
+ * Hook customizado para acessar o contexto de autenticação.
+ * @returns {object} O valor do contexto de autenticação.
+ */
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {

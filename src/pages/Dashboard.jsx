@@ -1,17 +1,33 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { useAuth } from '../contexts/AuthContext.jsx'; // Caminho corrigido
-import { SearchBar } from '../components/SearchBar'; // Caminho corrigido
-import { PlayerCard } from '../components/PlayerCard'; // Caminho corrigido
-import { LoadingSpinner } from '../components/LoadingSpinner'; // Caminho corrigido
-import { searchPlayer, getFavorites, addFavorite, removeFavorite } from '../api/RiotApi';
+import { useAuth } from '../contexts/AuthContext.jsx';
+import { SearchBar } from '../components/SearchBar';
+import { PlayerCard } from '../components/PlayerCard';
+import { LoadingSpinner } from '../components/LoadingSpinner';
+import { searchPlayer, getFavorites, addFavorite, removeFavorite, getChampionMastery, getChampionStats } from '../api/RiotApi';
+import { MasteryList } from '../components/MasteryList';
+import { ChampionStatsModal } from '../components/ChampionStatsModal';
+import { FavoriteCard } from '../components/FavoriteCard';
 
+/**
+ * Página de Dashboard, acessível apenas para usuários autenticados.
+ * Permite buscar jogadores, gerenciá-los como favoritos e visualizar
+ * estatísticas detalhadas.
+ * @returns {JSX.Element} A página de dashboard.
+ */
 export default function Dashboard() {
   const [searchResult, setSearchResult] = useState(null);
+  const [searchMastery, setSearchMastery] = useState(null);
   const [favorites, setFavorites] = useState([]);
   const [isSearchLoading, setIsSearchLoading] = useState(false);
   const [isFavoritesLoading, setIsFavoritesLoading] = useState(true);
-  const { isAuthenticated } = useAuth(); // user e token são gerenciados internamente pela API agora
+  const { isAuthenticated } = useAuth();
+
+  // Estados para o modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedChampion, setSelectedChampion] = useState(null);
+  const [championStats, setChampionStats] = useState(null);
+  const [isStatsLoading, setIsStatsLoading] = useState(false);
 
   useEffect(() => {
     const fetchFavorites = async () => {
@@ -29,12 +45,23 @@ export default function Dashboard() {
     fetchFavorites();
   }, [isAuthenticated]);
 
+  /**
+   * Lida com a busca de um jogador, buscando dados do perfil e maestrias.
+   * @param {{ gameName: string, tagLine: string }} searchData - Os dados da busca.
+   */
   const handleSearch = async ({ gameName, tagLine }) => {
     setIsSearchLoading(true);
     setSearchResult(null);
+    setSearchMastery(null); // Limpa maestria anterior
     try {
-      const data = await searchPlayer(gameName, tagLine);
-      setSearchResult(data);
+      // Busca dados do perfil e maestrias em paralelo
+      const [player, mastery] = await Promise.all([
+        searchPlayer(gameName, tagLine),
+        getChampionMastery(gameName, tagLine)
+      ]);
+      
+      setSearchResult(player);
+      setSearchMastery(mastery);
       toast.success("Invocador encontrado!");
     } catch (error) {
       toast.error(error.message || "Erro ao buscar invocador.");
@@ -43,37 +70,90 @@ export default function Dashboard() {
     }
   };
 
+  /**
+   * Adiciona ou remove um jogador da lista de favoritos.
+   * @param {object} player - O objeto do jogador a ser favoritado/desfavoritado.
+   */
   const handleFavorite = async (player) => {
-    // player aqui é o objeto retornado por searchPlayer ou um item de favorites
-    const isAlreadyFavorited = favorites.some(fav => fav.puuid === player.puuid);
-    
+    const isFav = isFavorited(player.puuid);
     try {
-      if (isAlreadyFavorited) {
-        // Para remover, precisamos do ID do favorito, não do PUUID do jogador.
-        // O backend usa o _id do documento FavoriteRiot.
-        const favToDelete = favorites.find(f => f.puuid === player.puuid);
-        if (favToDelete && favToDelete._id) { // _id é o ID do favorito no banco
-          await removeFavorite(favToDelete._id);
-          setFavorites(prev => prev.filter(fav => fav.puuid !== player.puuid));
+      if (isFav) {
+        const favToRemove = favorites.find(f => f.puuid === player.puuid);
+        if (favToRemove) {
+          await removeFavorite(favToRemove._id);
+          setFavorites(favorites.filter(f => f.puuid !== player.puuid));
           toast.info(`${player.gameName} removido dos favoritos.`);
-        } else {
-          toast.error("Não foi possível encontrar o ID do favorito para remover.");
         }
       } else {
-        const newFavoriteData = await addFavorite(player); // addFavorite envia os dados necessários
-        setFavorites(prev => [...prev, newFavoriteData]);
+        const newFavorite = await addFavorite(player);
+        setFavorites([...favorites, newFavorite]);
         toast.success(`${player.gameName} adicionado aos favoritos!`);
       }
-      // Atualiza o estado do ícone no resultado da busca, se aplicável
-      if (searchResult && searchResult.puuid === player.puuid) {
-        setSearchResult(prev => ({ ...prev, isNowFavorited: !isAlreadyFavorited }));
-      }
     } catch (error) {
-      toast.error(error.message || "Erro ao atualizar favoritos.");
+      toast.error(error.response?.data?.message || error.message || "Erro ao gerenciar favoritos.");
     }
   };
 
+  /**
+   * Remove um jogador da lista de favoritos usando seu ID.
+   * @param {string} favoriteId - O ID do favorito a ser removido.
+   * @param {string} favoriteName - O nome do jogador para exibir na notificação.
+   */
+  const handleRemoveFavorite = async (favoriteId, favoriteName) => {
+    try {
+      await removeFavorite(favoriteId);
+      setFavorites(prevFavorites => prevFavorites.filter(f => f._id !== favoriteId));
+      toast.info(`${favoriteName} removido dos favoritos.`);
+    } catch (error) {
+      toast.error(error.response?.data?.message || error.message || "Erro ao remover favorito.");
+    }
+  };
+
+  /**
+   * Lida com o clique em um card de favorito, acionando uma nova busca
+   * e rolando a página para o topo para exibir o resultado.
+   * @param {object} favorite - O objeto do favorito clicado.
+   */
+  const handleFavoriteClick = (favorite) => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    handleSearch({ gameName: favorite.nome, tagLine: favorite.tag });
+  };
+
+  /**
+   * Verifica se um jogador já está na lista de favoritos.
+   * @param {string} puuid - O PUUID do jogador a ser verificado.
+   * @returns {boolean} Verdadeiro se o jogador for um favorito.
+   */
   const isFavorited = (puuid) => favorites.some(fav => fav.puuid === puuid);
+
+  /**
+   * Lida com o clique em um campeão, abrindo o modal de estatísticas.
+   * @param {object} champion - O objeto do campeão clicado.
+   */
+  const handleChampionClick = async (champion) => {
+    if (!searchResult) return;
+    setSelectedChampion(champion);
+    setIsModalOpen(true);
+    setIsStatsLoading(true);
+    try {
+      const stats = await getChampionStats(searchResult.gameName, searchResult.tagLine, champion.championIcon);
+      setChampionStats(stats);
+    } catch (error) {
+      toast.error(error.message || "Erro ao buscar estatísticas do campeão.");
+      handleCloseModal();
+    } finally {
+      setIsStatsLoading(false);
+    }
+  };
+
+  /**
+   * Fecha o modal de estatísticas do campeão.
+   */
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedChampion(null);
+    setChampionStats(null);
+  };
 
   return (
     <div className="flex-grow p-4 sm:p-6 md:p-8">
@@ -84,36 +164,53 @@ export default function Dashboard() {
         <div className="mt-8 space-y-4 max-w-2xl mx-auto">
           {isSearchLoading && <LoadingSpinner />}
           {searchResult && (
-            <PlayerCard 
-              player={searchResult} 
-              onFavorite={handleFavorite} 
-              isFavorited={isFavorited(searchResult.puuid)} 
-              isAuthenticated={isAuthenticated} 
-            />
+            <>
+              <PlayerCard 
+                player={searchResult} 
+                onFavorite={handleFavorite} 
+                isFavorited={isFavorited(searchResult.puuid)} 
+                isAuthenticated={isAuthenticated} 
+              />
+              <MasteryList 
+                masteryData={searchMastery} 
+                onChampionClick={handleChampionClick} 
+              />
+            </>
           )}
         </div>
 
         <div className="mt-12">
-          <h3 className="text-2xl sm:text-3xl font-bold text-theme-gold-text mb-4 border-b-2 border-theme-border pb-2">Seus Favoritos</h3>
+          <h2 className="text-2xl font-bold text-theme-gold-text border-b-2 border-theme-border pb-2">
+            Seus Favoritos
+          </h2>
           {isFavoritesLoading ? (
-            <LoadingSpinner />
+            <div className="flex justify-center mt-8">
+              <LoadingSpinner />
+            </div>
           ) : favorites.length > 0 ? (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {favorites.map(fav => (
-                <PlayerCard 
-                  key={fav.puuid || fav._id} // Usar _id se puuid não for único ou garantido
-                  player={fav} 
-                  onFavorite={handleFavorite} 
-                  isFavorited={true} // Já que está listado, é um favorito
-                  isAuthenticated={isAuthenticated} 
+            <div className="mt-4 space-y-4">
+              {favorites.map((fav) => (
+                <FavoriteCard 
+                  key={fav._id} 
+                  favorite={fav} 
+                  onRemove={handleRemoveFavorite} 
+                  onCardClick={handleFavoriteClick}
                 />
               ))}
             </div>
           ) : (
-            <p className="text-theme-primary-text text-center sm:text-left">Você ainda não adicionou jogadores aos favoritos.</p>
+            <p className="mt-4 text-theme-primary-text/70">Você ainda não adicionou nenhum jogador aos favoritos.</p>
           )}
         </div>
       </div>
+
+      <ChampionStatsModal 
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        champion={selectedChampion}
+        stats={championStats}
+        isLoading={isStatsLoading}
+      />
     </div>
   );
 }
