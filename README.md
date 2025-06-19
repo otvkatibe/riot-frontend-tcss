@@ -20,9 +20,13 @@ LoL Stats é uma aplicação web interativa construída com React e Tailwind CSS
     *   **Modal de Estatísticas Detalhadas:** Ao clicar no ícone de um campeão, um modal exibe estatísticas agregadas (KDA, Win Rate, CS/min) e um **histórico de partidas recentes** com aquele campeão, mostrando KDA, duração, CS, rota (lane) e função (role) de cada jogo.
 
 *   **Sistema de Favoritos (Requer Login):**
-    *   Adicione ou remova jogadores pesquisados da sua lista de favoritos com um clique.
+    *   Adicione ou remova jogadores pesquisados da sua lista de favoritos.
+    *   **Adicionar Observações:** Inclua notas personalizadas ao favoritar um jogador.
     *   **Busca Rápida:** Clique em um jogador na sua lista de favoritos para buscá-lo instantaneamente.
     *   Visualize e gerencie sua lista de jogadores favoritos no Dashboard.
+
+*   **Ranking de Desafiantes:**
+    *   Exibe uma lista em tempo real com o **Top 5** de jogadores do elo Desafiante, mostrando nome, tag e Pontos de Liga (PDL).
 
 *   **Interface Moderna e Responsiva:**
     *   Design construído com Tailwind CSS, totalmente adaptável para desktops e dispositivos móveis.

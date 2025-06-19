@@ -8,6 +8,7 @@ import { searchPlayer, getFavorites, addFavorite, removeFavorite, getChampionMas
 import { MasteryList } from '../components/MasteryList';
 import { ChampionStatsModal } from '../components/ChampionStatsModal';
 import { FavoriteCard } from '../components/FavoriteCard';
+import { ChallengerList } from '../components/ChallengerList'; // Importar
 
 /**
  * Página de Dashboard, acessível apenas para usuários autenticados.
@@ -85,9 +86,13 @@ export default function Dashboard() {
           toast.info(`${player.gameName} removido dos favoritos.`);
         }
       } else {
-        const newFavorite = await addFavorite(player);
-        setFavorites([...favorites, newFavorite]);
-        toast.success(`${player.gameName} adicionado aos favoritos!`);
+        const observacao = window.prompt("Adicionar uma observação (opcional):");
+        // Se o usuário não cancelar o prompt
+        if (observacao !== null) {
+          const newFavorite = await addFavorite(player, observacao);
+          setFavorites([...favorites, newFavorite]);
+          toast.success(`${player.gameName} adicionado aos favoritos!`);
+        }
       }
     } catch (error) {
       toast.error(error.response?.data?.message || error.message || "Erro ao gerenciar favoritos.");
@@ -211,6 +216,7 @@ export default function Dashboard() {
         stats={championStats}
         isLoading={isStatsLoading}
       />
+      <ChallengerList />
     </div>
   );
 }

@@ -9,6 +9,7 @@ import { searchPlayer, getChampionMastery, getChampionStats } from "../api/RiotA
 import { useAuth } from "../contexts/AuthContext";
 import { MasteryList } from "../components/MasteryList";
 import { ChampionStatsModal } from "../components/ChampionStatsModal";
+import { ChallengerList } from "../components/ChallengerList"; // Importar
 
 /**
  * Página inicial da aplicação.
@@ -120,6 +121,7 @@ export default function Home() {
         stats={championStats}
         champion={selectedChampion}
       />
+      <ChallengerList />
     </div>
   );
 }

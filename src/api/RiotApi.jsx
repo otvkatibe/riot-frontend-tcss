@@ -70,6 +70,15 @@ export const getChampionStats = async (gameName, tagLine, championId) => {
 };
 
 /**
+ * Busca o top 5 de jogadores do elo Desafiante (Solo/Duo).
+ * @returns {Promise<Array<object>>} Uma lista com os 5 melhores jogadores.
+ */
+export const getChallengerTop = async () => {
+  const { data } = await API.get('/riot/challenger-top5'); // Rota corrigida e mais clara
+  return data;
+};
+
+/**
  * Busca a lista de jogadores favoritos do usuário autenticado.
  * @returns {Promise<Array<object>>} Uma lista de objetos de favoritos.
  */
@@ -86,9 +95,10 @@ export const getFavorites = async () => {
 /**
  * Adiciona um jogador à lista de favoritos.
  * @param {object} playerData - Os dados do jogador a ser favoritado.
+ * @param {string} observacao - Uma nota opcional sobre o jogador.
  * @returns {Promise<object>} O objeto do favorito recém-criado.
  */
-export const addFavorite = async (playerData) => {
+export const addFavorite = async (playerData, observacao = '') => {
   const payload = {
     nome: playerData.gameName,
     tag: playerData.tagLine,
@@ -97,6 +107,7 @@ export const addFavorite = async (playerData) => {
     profileIconId: playerData.profileIconId,
     summonerLevel: playerData.summonerLevel,
     ranks: playerData.ranks,
+    observacao: observacao, // Adiciona o campo observação
   };
   const { data } = await API.post("/riot/favorites", payload);
   return { ...data, profileIconUrl: getProfileIconUrl(data.profileIconId) };
