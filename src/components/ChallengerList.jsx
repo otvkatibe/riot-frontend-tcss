@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getChallengerTop } from '../api/RiotApi'; // Função atualizada
+import { getChallengerTop } from '../api/RiotApi';
 import { LoadingSpinner } from './LoadingSpinner';
 
 export const ChallengerList = () => {
@@ -10,7 +10,7 @@ export const ChallengerList = () => {
   useEffect(() => {
     const fetchChallengers = async () => {
       try {
-        const data = await getChallengerTop(); // Chamando a nova função
+        const data = await getChallengerTop();
         setChallengers(data);
       } catch (err) {
         setError('Não foi possível carregar a lista de Desafiantes.');
@@ -25,25 +25,25 @@ export const ChallengerList = () => {
 
   if (error) {
     return (
-      <div className="fixed bottom-4 right-4 bg-red-800/50 text-white p-3 rounded-lg shadow-lg max-w-xs w-full">
+      <div className="bg-red-800/50 text-white p-3 rounded-lg shadow-lg max-w-xs w-full mx-auto my-4">
         <p>{error}</p>
       </div>
     );
   }
 
   return (
-    <div className="fixed bottom-4 right-4 bg-theme-input-bg/80 backdrop-blur-md border-2 border-theme-border rounded-lg shadow-lg max-w-xs w-full max-h-80 overflow-y-auto">
-      <h4 className="text-lg font-bold text-theme-gold-text p-3 border-b border-theme-border sticky top-0 bg-theme-input-bg/90">
+    <div className="w-full max-w-md mx-auto my-8 bg-theme-input-bg/80 backdrop-blur-md border-2 border-theme-border rounded-lg shadow-lg">
+      <h4 className="text-lg font-bold text-theme-gold-text p-3 border-b border-theme-border text-center bg-theme-input-bg/90 rounded-t-lg">
         Top 5 Desafiantes
       </h4>
       {isLoading ? (
-        <div className="p-4">
+        <div className="p-4 flex justify-center">
           <LoadingSpinner />
         </div>
       ) : (
         <ul className="divide-y divide-theme-input-border">
           {challengers.map((player, index) => (
-            <li key={player.summonerId || index} className="p-3 flex justify-between items-center text-sm gap-3">
+            <li key={player.puuid || player.summonerId || index} className="p-3 flex justify-between items-center text-sm gap-3">
               <div className="flex-grow truncate">
                 <span className="font-semibold text-theme-primary-text">
                   {index + 1}. {player.name}
