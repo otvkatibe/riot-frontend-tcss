@@ -4,6 +4,6 @@
  */
 export const Footer = () => (
   <footer className="text-center p-4 mt-auto border-t border-theme-border text-theme-primary-text text-sm">
-      League-Stats © {new Date().getFullYear()}. Todos os direitos reservados.
+      League-Stats {new Date().getFullYear()}.
   </footer>
 );
