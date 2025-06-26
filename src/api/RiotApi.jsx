@@ -74,7 +74,7 @@ export const getChampionStats = async (gameName, tagLine, championId) => {
  * @returns {Promise<Array<object>>} Uma lista com os 5 melhores jogadores.
  */
 export const getChallengerTop = async () => {
-  const { data } = await API.get('/riot/challenger-top5'); // Rota corrigida e mais clara
+  const { data } = await API.get('/riot/challenger-top3');
   return data;
 };
 

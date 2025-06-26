@@ -49,10 +49,16 @@ export const FavoriteCard = ({ favorite, onRemove, onCardClick }) => {
         />
         <div className="flex-grow flex flex-col">
           <div>
-            <h3 className="text-lg font-bold text-theme-primary-text">
+            <h3 className="text-xl sm:text-2xl font-bold text-theme-primary-text">
               {gameName} <span className="text-theme-gold-text">#{tagLine}</span>
             </h3>
-            <p className="text-theme-gold-text text-sm">Nível: {favorite.summonerLevel}</p>
+            <p className="text-theme-gold-text text-base sm:text-lg">Nível: {favorite.summonerLevel}</p>
+            {/* Exibe a observação, se existir */}
+            {favorite.observacao && (
+              <p className="text-theme-primary-text/80 text-xs mt-1 italic">
+                Obs: {favorite.observacao}
+              </p>
+            )}
           </div>
           {/* Container para exibir os ranks lado a lado */}
           <div className="mt-1 flex gap-x-6 text-xs text-theme-primary-text/80">

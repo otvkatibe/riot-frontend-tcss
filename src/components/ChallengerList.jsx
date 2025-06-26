@@ -46,11 +46,11 @@ export const ChallengerList = () => {
             <li key={player.puuid || player.summonerId || index} className="p-3 flex justify-between items-center text-sm gap-3">
               <div className="flex-grow truncate">
                 <span className="font-semibold text-theme-primary-text">
-                  {index + 1}. {player.name || player.summonerName || "Desafiante Desconhecido"}
+                  {index + 1}. {player.name || "Desafiante Desconhecido"}
                 </span>
-                {player.tag || player.tagLine ? (
+                {player.tag ? (
                   <span className="text-theme-gold-text/70 ml-1">
-                    #{player.tag || player.tagLine}
+                    #{player.tag}
                   </span>
                 ) : null}
               </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { SearchBar } from '../components/SearchBar';
 import { PlayerCard } from '../components/PlayerCard';
@@ -87,17 +88,47 @@ export default function Dashboard() {
         const favToRemove = favorites.find(f => f.puuid === player.puuid);
         if (favToRemove) {
           await removeFavorite(favToRemove._id);
-          setFavorites(favorites.filter(f => f.puuid !== player.puuid));
+          setFavorites(prevFavorites => prevFavorites.filter(f => f._id !== favToRemove._id));
           toast.info(`${player.gameName} removido dos favoritos.`);
         }
       } else {
-        const observacao = window.prompt("Adicionar uma observação (opcional):");
-        // Se o usuário não cancelar o prompt
-        if (observacao !== null) {
-          const newFavorite = await addFavorite(player, observacao);
-          setFavorites([...favorites, newFavorite]);
-          toast.success(`${player.gameName} adicionado aos favoritos!`);
-        }
+        // Toastify custom input para observação
+        let obsValue = "";
+        const toastId = toast(
+          ({ closeToast }) => (
+            <div>
+              <p className="mb-2">Adicionar uma observação (opcional):</p>
+              <input
+                type="text"
+                autoFocus
+                className="border p-1 rounded w-full text-black"
+                onChange={e => { obsValue = e.target.value; }}
+                onKeyDown={e => {
+                  if (e.key === "Enter") {
+                    closeToast();
+                    addFavorite(player, obsValue).then(newFavorite => {
+                      setFavorites(prev => [...prev, newFavorite]);
+                      toast.success(`${player.gameName} adicionado aos favoritos!`);
+                    });
+                  }
+                }}
+              />
+              <button
+                className="mt-2 px-3 py-1 bg-theme-gold-text text-theme-bg rounded"
+                onClick={() => {
+                  closeToast();
+                  addFavorite(player, obsValue).then(newFavorite => {
+                    setFavorites(prev => [...prev, newFavorite]);
+                    toast.success(`${player.gameName} adicionado aos favoritos!`);
+                  });
+                }}
+              >
+                Salvar
+              </button>
+            </div>
+          ),
+          { autoClose: false }
+        );
       }
     } catch (error) {
       toast.error(error.response?.data?.message || error.message || "Erro ao gerenciar favoritos.");
