@@ -120,3 +120,14 @@ export const addFavorite = async (playerData, observacao = '') => {
 export const removeFavorite = async (favoriteId) => {
   await API.delete(`/riot/favorites/${favoriteId}`);
 };
+
+/**
+ * Busca o histórico de partidas de um jogador.
+ * @param {string} gameName - O nome de invocador do jogador.
+ * @param {string} tagLine - A tag do jogador.
+ * @returns {Promise<Array<object>>} Uma lista com o histórico de partidas.
+ */
+export const getPlayerHistory = async (gameName, tagLine) => {
+  const { data } = await API.get(`/riot/history?nome=${encodeURIComponent(gameName)}&tag=${encodeURIComponent(tagLine)}`);
+  return data;
+};

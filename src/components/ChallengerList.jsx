@@ -11,7 +11,7 @@ export const ChallengerList = () => {
     const fetchChallengers = async () => {
       try {
         const data = await getChallengerTop();
-        setChallengers(data);
+        setChallengers(data.slice(0, 3)); // Mostra apenas o Top 3
       } catch (err) {
         setError('Não foi possível carregar a lista de Desafiantes.');
         console.error(err);
@@ -34,7 +34,7 @@ export const ChallengerList = () => {
   return (
     <div className="w-full max-w-md mx-auto my-8 bg-theme-input-bg/80 backdrop-blur-md border-2 border-theme-border rounded-lg shadow-lg">
       <h4 className="text-lg font-bold text-theme-gold-text p-3 border-b border-theme-border text-center bg-theme-input-bg/90 rounded-t-lg">
-        Top 5 Desafiantes
+        Top 3 Desafiantes
       </h4>
       {isLoading ? (
         <div className="p-4 flex justify-center">
@@ -46,14 +46,16 @@ export const ChallengerList = () => {
             <li key={player.puuid || player.summonerId || index} className="p-3 flex justify-between items-center text-sm gap-3">
               <div className="flex-grow truncate">
                 <span className="font-semibold text-theme-primary-text">
-                  {index + 1}. {player.name}
+                  {index + 1}. {player.name || player.summonerName || "Desafiante Desconhecido"}
                 </span>
-                <span className="text-theme-gold-text/70 ml-1">
-                  #{player.tag}
-                </span>
+                {player.tag || player.tagLine ? (
+                  <span className="text-theme-gold-text/70 ml-1">
+                    #{player.tag || player.tagLine}
+                  </span>
+                ) : null}
               </div>
               <span className="text-theme-gold-text flex-shrink-0">
-                {player.leaguePoints.toLocaleString('pt-BR')} PDL
+                {player.leaguePoints?.toLocaleString('pt-BR') ?? 0} PDL
               </span>
             </li>
           ))}

@@ -4,11 +4,11 @@ import { useAuth } from '../contexts/AuthContext.jsx';
 import { SearchBar } from '../components/SearchBar';
 import { PlayerCard } from '../components/PlayerCard';
 import { LoadingSpinner } from '../components/LoadingSpinner';
-import { searchPlayer, getFavorites, addFavorite, removeFavorite, getChampionMastery, getChampionStats } from '../api/RiotApi';
+import { searchPlayer, getFavorites, addFavorite, removeFavorite, getChampionMastery, getChampionStats, getPlayerHistory } from '../api/RiotApi';
 import { MasteryList } from '../components/MasteryList';
 import { ChampionStatsModal } from '../components/ChampionStatsModal';
 import { FavoriteCard } from '../components/FavoriteCard';
-import { ChallengerList } from '../components/ChallengerList'; // Importar
+import { ChallengerList } from '../components/ChallengerList';
 
 /**
  * Página de Dashboard, acessível apenas para usuários autenticados.
@@ -29,6 +29,11 @@ export default function Dashboard() {
   const [selectedChampion, setSelectedChampion] = useState(null);
   const [championStats, setChampionStats] = useState(null);
   const [isStatsLoading, setIsStatsLoading] = useState(false);
+
+  // Estados para o histórico
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [historyData, setHistoryData] = useState(null);
+  const [isHistoryLoading, setIsHistoryLoading] = useState(false);
 
   useEffect(() => {
     const fetchFavorites = async () => {
@@ -160,6 +165,32 @@ export default function Dashboard() {
     setChampionStats(null);
   };
 
+  /**
+   * Abre o modal com o histórico geral recente do jogador.
+   */
+  const handleOpenHistory = async () => {
+    if (!searchResult) return;
+    setIsHistoryOpen(true);
+    setIsHistoryLoading(true);
+    try {
+      const data = await getPlayerHistory(searchResult.gameName, searchResult.tagLine);
+      setHistoryData(data);
+    } catch (error) {
+      toast.error("Erro ao buscar histórico geral.");
+      setIsHistoryOpen(false);
+    } finally {
+      setIsHistoryLoading(false);
+    }
+  };
+
+  /**
+   * Fecha o modal de histórico geral.
+   */
+  const handleCloseHistory = () => {
+    setIsHistoryOpen(false);
+    setHistoryData(null);
+  };
+
   return (
     <div className="flex-grow p-4 sm:p-6 md:p-8">
       <div className="max-w-7xl mx-auto">
@@ -176,6 +207,13 @@ export default function Dashboard() {
                 isFavorited={isFavorited(searchResult.puuid)} 
                 isAuthenticated={isAuthenticated} 
               />
+              {/* Botão para ver histórico geral */}
+              <button
+                className="mt-4 w-full p-3 bg-theme-button-bg text-theme-gold-text border-2 border-theme-border rounded-md font-bold transition-all duration-300 hover:bg-theme-button-hover"
+                onClick={handleOpenHistory}
+              >
+                Ver Histórico Geral Recente
+              </button>
               <MasteryList 
                 masteryData={searchMastery} 
                 onChampionClick={handleChampionClick} 
@@ -183,6 +221,59 @@ export default function Dashboard() {
             </>
           )}
         </div>
+
+        {/* Modal simples para histórico geral */}
+        {isHistoryOpen && (
+          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={handleCloseHistory}>
+            <div className="bg-theme-bg border-2 border-theme-border rounded-lg p-6 w-full max-w-lg relative max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+              <button onClick={handleCloseHistory} className="absolute top-2 right-2 text-theme-primary-text hover:text-theme-gold-text text-2xl z-10">&times;</button>
+              {isHistoryLoading ? (
+                <LoadingSpinner />
+              ) : historyData && historyData.matches ? (
+                <div>
+                  <h2 className="text-2xl font-bold text-theme-gold-text mb-4 text-center">Histórico Geral Recente</h2>
+                  <ul className="space-y-2">
+                    {historyData.matches.map((match, idx) => (
+                      <li
+                        key={idx}
+                        className={`p-3 rounded-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 ${match.win ? 'bg-green-800/20' : 'bg-red-800/20'}`}
+                      >
+                        {/* Foto do campeão */}
+                        <img
+                          src={`https://ddragon.leagueoflegends.com/cdn/14.12.1/img/champion/${match.championName}.png`}
+                          alt={match.championName}
+                          className="w-12 h-12 rounded-md border-2 border-theme-gold-text mr-2"
+                          style={{ minWidth: 48 }}
+                        />
+                        {/* Stats principais */}
+                        <div className="flex flex-col flex-grow">
+                          <span className={`font-bold ${match.win ? 'text-green-400' : 'text-red-400'}`}>
+                            {match.win ? 'Vitória' : 'Derrota'}
+                          </span>
+                          <span className="text-theme-primary-text font-semibold">
+                            {match.championName} - {match.kills}/{match.deaths}/{match.assists}
+                          </span>
+                          <span className="text-theme-primary-text text-xs">
+                            KDA: {((match.kills + match.assists) / Math.max(1, match.deaths)).toFixed(2)}
+                          </span>
+                        </div>
+                        {/* Stats adicionais */}
+                        <div className="flex flex-col text-xs text-theme-primary-text/80 items-end">
+                          <span>Duração: {Math.floor(match.gameDuration/60)}:{(match.gameDuration%60).toString().padStart(2,'0')}</span>
+                          <span>CS: {match.totalCS}</span>
+                          <span>Lane: {match.lane}</span>
+                          <span>Role: {match.role}</span>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : (
+                <p className="text-theme-primary-text text-center">Nenhum histórico encontrado.</p>
+              )}
+            </div>
+          </div>
+        )}
 
         <div className="mt-12">
           <h2 className="text-2xl font-bold text-theme-gold-text border-b-2 border-theme-border pb-2">
