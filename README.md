@@ -8,11 +8,11 @@ LoL Stats é uma aplicação web interativa construída com React e Tailwind CSS
 
 * Interface do produto
 
-
 [Interface1.pdf](https://github.com/user-attachments/files/20937498/Interface1.pdf)
 [Interface4.pdf](https://github.com/user-attachments/files/20937497/Interface4.pdf)
 [Interface3.pdf](https://github.com/user-attachments/files/20937496/Interface3.pdf)
 [Interface2.pdf](https://github.com/user-attachments/files/20937495/Interface2.pdf)
+![Resultado final](assets/screenshot.png)
 
 ## Funcionalidades Principais
 
