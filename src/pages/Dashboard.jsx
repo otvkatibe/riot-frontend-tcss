@@ -23,34 +23,49 @@ export default function Dashboard() {
   const [favorites, setFavorites] = useState([]);
   const [isSearchLoading, setIsSearchLoading] = useState(false);
   const [isFavoritesLoading, setIsFavoritesLoading] = useState(true);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
 
-  // Estados para o modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedChampion, setSelectedChampion] = useState(null);
   const [championStats, setChampionStats] = useState(null);
   const [isStatsLoading, setIsStatsLoading] = useState(false);
 
-  // Estados para o histórico
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [historyData, setHistoryData] = useState(null);
   const [isHistoryLoading, setIsHistoryLoading] = useState(false);
 
   useEffect(() => {
     const fetchFavorites = async () => {
-      if (!isAuthenticated) return; // Não busca se não estiver autenticado
+      if (!isAuthenticated || !user) {
+        setFavorites([]);
+        setIsFavoritesLoading(false);
+        return;
+      }
+      
       setIsFavoritesLoading(true);
       try {
         const favsData = await getFavorites();
         setFavorites(favsData);
       } catch (error) {
         toast.error(error.message || "Não foi possível carregar os favoritos.");
+        setFavorites([]);
       } finally {
         setIsFavoritesLoading(false);
       }
     };
+    
     fetchFavorites();
-  }, [isAuthenticated]);
+  }, [isAuthenticated, user?.id]);
+
+  useEffect(() => {
+    setSearchResult(null);
+    setSearchMastery(null);
+    setIsModalOpen(false);
+    setSelectedChampion(null);
+    setChampionStats(null);
+    setIsHistoryOpen(false);
+    setHistoryData(null);
+  }, [user?.id]);
 
   /**
    * Lida com a busca de um jogador, buscando dados do perfil e maestrias.
@@ -59,9 +74,8 @@ export default function Dashboard() {
   const handleSearch = async ({ gameName, tagLine }) => {
     setIsSearchLoading(true);
     setSearchResult(null);
-    setSearchMastery(null); // Limpa maestria anterior
+    setSearchMastery(null);
     try {
-      // Busca dados do perfil e maestrias em paralelo
       const [player, mastery] = await Promise.all([
         searchPlayer(gameName, tagLine),
         getChampionMastery(gameName, tagLine)
@@ -92,7 +106,6 @@ export default function Dashboard() {
           toast.info(`${player.gameName} removido dos favoritos.`);
         }
       } else {
-        // Toastify custom input para observação
         let obsValue = "";
         const toastId = toast(
           ({ closeToast }) => (

@@ -83,13 +83,22 @@ export const getChallengerTop = async () => {
  * @returns {Promise<Array<object>>} Uma lista de objetos de favoritos.
  */
 export const getFavorites = async () => {
-  const { data } = await API.get("/riot/favorites");
-  return data.map(fav => ({
-    ...fav,
-    gameName: fav.nome,
-    tagLine: fav.tag,
-    profileIconUrl: getProfileIconUrl(fav.profileIconId)
-  }));
+  try {
+    const { data } = await API.get("/riot/favorites");
+    return data.map(fav => ({
+      ...fav,
+      gameName: fav.nome,
+      tagLine: fav.tag,
+      profileIconUrl: getProfileIconUrl(fav.profileIconId)
+    }));
+  } catch (error) {
+    // Se houver erro de autenticação, limpa dados locais
+    if (error.response?.status === 401) {
+      localStorage.removeItem('userToken');
+      localStorage.removeItem('userData');
+    }
+    throw error;
+  }
 };
 
 /**

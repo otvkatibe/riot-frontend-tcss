@@ -127,8 +127,12 @@ export function AuthProvider({ children }) {
   const logout = async () => {
     setLoading(true);
     await apiLogout();
+    
     setUser(null);
     setToken(null);
+    localStorage.removeItem('userToken');
+    localStorage.removeItem('userData');
+    
     toast.info('Você foi desconectado.');
     setLoading(false);
   };
