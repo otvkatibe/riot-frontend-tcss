@@ -2,68 +2,77 @@
 
 LoL Stats é uma aplicação web interativa construída com React e Tailwind CSS que permite aos usuários buscar estatísticas detalhadas de jogadores de League of Legends. A plataforma oferece funcionalidades de autenticação, busca de perfis, visualização de maestrias de campeões, sistema de favoritos com observações e ranking dos melhores jogadores.
 
-* Arquitetura do Sistema
+## Arquitetura do Sistema
 
 ![arqt (1)](https://github.com/user-attachments/assets/6c077aea-e0c7-4e08-8684-25c390fd4706)
 
-* Interface do produto
+## Interface do Produto
 
 [Interface1.pdf](https://github.com/user-attachments/files/20937498/Interface1.pdf)
-[Interface4.pdf](https://github.com/user-attachments/files/20937497/Interface4.pdf)
-[Interface3.pdf](https://github.com/user-attachments/files/20937496/Interface3.pdf)
 [Interface2.pdf](https://github.com/user-attachments/files/20937495/Interface2.pdf)
+[Interface3.pdf](https://github.com/user-attachments/files/20937496/Interface3.pdf)
+[Interface4.pdf](https://github.com/user-attachments/files/20937497/Interface4.pdf)
 ![Resultado final](src/assets/screenshot.png)
+
+---
 
 ## Funcionalidades Principais
 
-* **Autenticação de Usuários:**
-    * Sistema completo de registro e login.
-    * Sessão de usuário persistente com JWT, mantendo o usuário conectado.
-    * Rotas protegidas, como o Dashboard, acessíveis apenas para usuários autenticados.
+- **Autenticação de Usuários**
+  - Registro e login com sessão persistente (JWT).
+  - Rotas protegidas (Dashboard) para usuários autenticados.
 
-* **Busca e Visualização de Jogadores:**
-    * Pesquisa de jogadores por Nome de Invocador e Tag.
-    * Exibição de um card de perfil com:
-        * Ícone de perfil, nome e nível.
-        * Ranks detalhados para as filas Solo/Duo e Flex (elo, divisão, PDL, vitórias e derrotas).
+- **Busca e Visualização de Jogadores**
+  - Pesquisa por Nome de Invocador e Tag.
+  - Card de perfil com ícone, nome, nível e ranks Solo/Duo e Flex.
 
-* **Análise de Campeões:**
-    * **Lista de Maestrias:** Exibe os 10 campeões com maior pontuação de maestria do jogador pesquisado.
-    * **Modal de Estatísticas Detalhadas:** Ao clicar no ícone de um campeão, um modal exibe estatísticas agregadas (KDA, Win Rate, CS/min) e um **histórico de partidas recentes** com aquele campeão, mostrando KDA, duração, CS, rota (lane) e função (role) de cada jogo.
+- **Análise de Campeões**
+  - **Lista de Maestrias:** Top 10 campeões com maior maestria.
+  - **Modal de Estatísticas Detalhadas:** Clique no campeão para ver KDA, Win Rate, CS/min e histórico de partidas recentes (com ícone, lane, role, duração, resultado).
 
-* **Histórico Geral de Partidas:**
-    * Após pesquisar um jogador, é possível visualizar o histórico geral recente de partidas, com detalhes de cada partida (campeão, KDA, CS, lane, role, duração e resultado).
+- **História dos Campeões**
+  - Modal exclusivo com splash art, nome, título, lore (história oficial) e classes (com ícones), consumindo dados diretamente do DDragon.
 
-* **Sistema de Favoritos (Requer Login):**
-    * Adicione ou remova jogadores pesquisados da sua lista de favoritos.
-    * **Adicionar Observações:** Inclua notas personalizadas ao favoritar um jogador e visualize essas observações diretamente na lista de favoritos.
-    * **Busca Rápida:** Clique em um jogador na sua lista de favoritos para buscá-lo instantaneamente.
-    * Visualize e gerencie sua lista de jogadores favoritos no Dashboard.
+- **Histórico Geral de Partidas**
+  - Visualização do histórico recente de partidas do jogador, com detalhes de cada partida (campeão, KDA, CS, lane, role, duração, resultado).
 
-* **Ranking de Desafiantes:**
-    * Exibe uma lista em tempo real com o **Top 3** de jogadores do elo Desafiante, mostrando nome, tag e Pontos de Liga (PDL).
+- **Sistema de Favoritos (Requer Login)**
+  - Adicione/remova jogadores favoritos.
+  - Inclua observações personalizadas ao favoritar.
+  - Busca rápida por favoritos no Dashboard.
 
-* **Interface Moderna e Responsiva:**
-    * Design construído com Tailwind CSS, totalmente adaptável para desktops e dispositivos móveis.
-    * Notificações (toasts) para fornecer feedback claro sobre as ações do usuário, inclusive ao adicionar favoritos com observação.
+- **Ranking de Desafiantes**
+  - Exibe o Top 3 do elo Desafiante em tempo real.
+
+- **Interface Moderna e Responsiva**
+  - Design com Tailwind CSS, adaptável para desktop e mobile.
+  - Notificações (toasts) para feedback de ações.
+
+---
 
 ## Tecnologias Utilizadas
 
-* **Frontend:**
-    * **React:** Biblioteca para construção de interfaces de usuário.
-    * **Vite:** Ferramenta de build e servidor de desenvolvimento de alta performance.
-    * **Tailwind CSS:** Framework CSS utility-first para estilização rápida e consistente.
-    * **React Router DOM:** Para gerenciamento de rotas na aplicação.
-    * **Axios:** Cliente HTTP para realizar requisições à API do backend.
-    * **React Toastify:** Para exibir notificações amigáveis.
-* **Backend (Dependência):**
-    * A aplicação consome uma API backend (Node.js/Express) responsável pela autenticação, gerenciamento de favoritos e por atuar como um proxy seguro para a API oficial da Riot Games.
+- **Frontend:**
+  - React
+  - Vite
+  - Tailwind CSS
+  - React Router DOM
+  - Axios
+  - React Toastify
+
+- **Backend (Dependência):**
+  - Node.js/Express (para autenticação, favoritos e proxy seguro para a Riot API)
+  - **Obs:** Os dados de campeões, lore e splash art são consumidos diretamente do DDragon no frontend.
+
+---
 
 ## Pré-requisitos
 
-* Node.js (versão 18.x ou superior)
-* npm, yarn ou pnpm
-* Um backend compatível em execução.
+- Node.js (18.x ou superior)
+- npm, yarn ou pnpm
+- Um backend compatível em execução para autenticação e favoritos
+
+---
 
 ## Como Executar o Projeto
 
@@ -79,10 +88,11 @@ LoL Stats é uma aplicação web interativa construída com React e Tailwind CSS
     ```
 
 3. **Configure a URL da API:**
-    * A URL base da API está definida no arquivo `src/api/Auth.jsx`. Por padrão, está configurada como `https://riot-backend.vercel.app`.
-    * Se o seu backend estiver rodando em outro endereço, altere a propriedade `baseURL` neste arquivo:
-    
-    ```javascript
+    - A URL base da API está definida em `src/api/Auth.jsx` e `src/api/RiotApi.jsx`.
+    - Por padrão, está como `https://riot-backend.vercel.app`.  
+    - Se o backend estiver em outro endereço, altere a propriedade `baseURL` nesses arquivos:
+
+    ```js
     // em src/api/Auth.jsx
     const API = axios.create({
       baseURL: "http://localhost:3001", // Altere para a URL do seu backend
@@ -94,32 +104,39 @@ LoL Stats é uma aplicação web interativa construída com React e Tailwind CSS
     ```bash
     npm run dev
     ```
-    A aplicação estará disponível em `http://localhost:5173` (ou em outra porta, caso a 5173 esteja em uso).
+    A aplicação estará disponível em `http://localhost:5173`.
+
+---
 
 ## Scripts Disponíveis
 
-* `npm run dev`: Inicia o servidor de desenvolvimento com Hot Module Replacement (HMR).
-* `npm run build`: Compila a aplicação para produção na pasta `dist`.
-* `npm run lint`: Executa o ESLint para verificar erros e padrões de código.
-* `npm run preview`: Inicia um servidor local para visualizar a build de produção.
+- `npm run dev`: Inicia o servidor de desenvolvimento com HMR.
+- `npm run build`: Compila a aplicação para produção na pasta `dist`.
+- `npm run lint`: Executa o ESLint.
+- `npm run preview`: Visualiza a build de produção localmente.
+
+---
 
 ## Estrutura de Pastas (`src`)
 
 ```
 src/
-├── api/          # Módulos para comunicação com a API (Auth, RiotApi)
+├── api/          # Comunicação com a API (Auth, RiotApi)
 ├── components/   # Componentes React reutilizáveis (Header, PlayerCard, etc.)
 │   └── icons/    # Componentes de ícones SVG
-├── contexts/     # Contextos React (AuthContext para gerenciamento de sessão)
+├── contexts/     # Contextos React (AuthContext)
 ├── hooks/        # Hooks personalizados (PrivateRoute)
-├── pages/        # Componentes de página (Dashboard, Home, Login, Register)
-├── App.jsx       # Componente principal, define rotas e layout
-├── index.css     # Configurações base do Tailwind e estilos globais
-└── main.jsx      # Ponto de entrada da aplicação React
+├── pages/        # Páginas (Dashboard, Home, Login, Register)
+├── App.jsx       # Componente principal
+├── index.css     # Tailwind e estilos globais
+└── main.jsx      # Ponto de entrada React
 ```
+
+---
 
 ## Observações
 
-- O backend deve estar rodando e acessível para que todas as funcionalidades funcionem corretamente.
+- O backend deve estar rodando e acessível para autenticação e favoritos.
+- Os dados de campeões, splash art e lore são consumidos diretamente do DDragon (não passam pelo backend).
 - Para adicionar observações ao favoritar um jogador, utilize o campo exibido pelo Toastify ao clicar na estrela de favorito.
-- O histórico geral de partidas e o Top 3 Desafiantes são atualizados em tempo real conforme os dados da Riot API.
+- O histórico geral de partidas e o Top 3 Desafiantes são atualizados em tempo real conforme a Riot
