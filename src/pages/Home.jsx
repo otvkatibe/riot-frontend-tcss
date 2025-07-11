@@ -10,6 +10,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { MasteryList } from "../components/MasteryList";
 import { ChampionStatsModal } from "../components/ChampionStatsModal";
 import { ChallengerList } from "../components/ChallengerList"; // Importar
+import TipsCards from '../components/TipsCards';
 
 /**
  * Página inicial da aplicação.
@@ -204,6 +205,7 @@ export default function Home() {
         champion={selectedChampion}
       />
       <ChallengerList />
+      <TipsCards />
     </div>
   );
 }
