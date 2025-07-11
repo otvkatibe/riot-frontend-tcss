@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
 
+const DDragon_VERSION = "14.12.1";
+
 export const ChampionLoreModal = ({ onClose }) => {
   const [champions, setChampions] = useState([]);
   const [selected, setSelected] = useState(null);
 
   useEffect(() => {
-    fetch("https://ddragon.leagueoflegends.com/cdn/14.12.1/data/pt_BR/champion.json")
+    fetch(`https://ddragon.leagueoflegends.com/cdn/${DDragon_VERSION}/data/pt_BR/champion.json`)
       .then(res => res.json())
-      .then(data => setChampions(Object.values(data.data)));
+      .then(data => setChampions(Object.values(data.data)))
+      .catch(() => setChampions([]));
   }, []);
 
   return (
@@ -15,7 +18,6 @@ export const ChampionLoreModal = ({ onClose }) => {
       <div className="bg-theme-bg border-2 border-theme-border rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto relative" onClick={e => e.stopPropagation()}>
         <button onClick={onClose} className="absolute top-2 right-2 text-theme-primary-text hover:text-theme-gold-text text-2xl z-10">&times;</button>
         <h2 className="text-2xl font-bold text-theme-gold-text mb-4 text-center">História dos Campeões</h2>
-        {/* Grid de campeões ocupando toda a largura */}
         <div className="overflow-y-auto max-h-[70vh]">
           <div className="grid grid-cols-5 sm:grid-cols-7 md:grid-cols-9 gap-4">
             {champions.map(champ => (
@@ -27,7 +29,7 @@ export const ChampionLoreModal = ({ onClose }) => {
                 type="button"
               >
                 <img
-                  src={`https://ddragon.leagueoflegends.com/cdn/14.12.1/img/champion/${champ.image.full}`}
+                  src={`https://ddragon.leagueoflegends.com/cdn/${DDragon_VERSION}/img/champion/${champ.image.full}`}
                   alt={champ.name}
                   className="w-16 h-16 rounded"
                 />
@@ -36,7 +38,6 @@ export const ChampionLoreModal = ({ onClose }) => {
             ))}
           </div>
         </div>
-        {/* Modal da história do campeão */}
         {selected && (
           <ChampionLoreBox champ={selected} onClose={() => setSelected(null)} />
         )}
@@ -87,11 +88,15 @@ const ChampionLoreBox = ({ champ, onClose }) => {
 
   useEffect(() => {
     if (!champ?.id) return;
-    fetch(`https://ddragon.leagueoflegends.com/cdn/14.12.1/data/pt_BR/champion/${champ.id}.json`)
+    fetch(`https://ddragon.leagueoflegends.com/cdn/${DDragon_VERSION}/data/pt_BR/champion/${champ.id}.json`)
       .then(res => res.json())
       .then(data => {
         setLore(data.data[champ.id].lore);
         setTags(data.data[champ.id].tags || []);
+      })
+      .catch(() => {
+        setLore("Não foi possível carregar a história.");
+        setTags([]);
       });
   }, [champ]);
 

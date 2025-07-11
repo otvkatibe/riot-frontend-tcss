@@ -10,6 +10,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { MasteryList } from "../components/MasteryList";
 import { ChampionStatsModal } from "../components/ChampionStatsModal";
 import { ChallengerList } from "../components/ChallengerList"; // Importar
+import { PlayerHistoryModal } from "../components/PlayerHistoryModal";
 
 /**
  * Página inicial da aplicação.
@@ -204,6 +205,12 @@ export default function Home() {
         champion={selectedChampion}
       />
       <ChallengerList />
+      <PlayerHistoryModal
+        isOpen={isHistoryOpen}
+        onClose={handleCloseHistory}
+        isLoading={isHistoryLoading}
+        historyData={historyData}
+      />
     </div>
   );
 }

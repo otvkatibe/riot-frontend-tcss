@@ -10,6 +10,7 @@ import { MasteryList } from '../components/MasteryList';
 import { ChampionStatsModal } from '../components/ChampionStatsModal';
 import { FavoriteCard } from '../components/FavoriteCard';
 import { ChallengerList } from '../components/ChallengerList';
+import { PlayerHistoryModal } from "../components/PlayerHistoryModal";
 
 /**
  * Página de Dashboard, acessível apenas para usuários autenticados.
@@ -352,6 +353,12 @@ export default function Dashboard() {
         isLoading={isStatsLoading}
       />
       <ChallengerList />
+      <PlayerHistoryModal
+        isOpen={isHistoryOpen}
+        onClose={handleCloseHistory}
+        isLoading={isHistoryLoading}
+        historyData={historyData}
+      />
     </div>
   );
 }
