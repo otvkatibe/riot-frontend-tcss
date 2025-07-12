@@ -19,10 +19,13 @@ export const getProfileIconUrl = (profileIconId) => {
  * Busca os dados de um jogador na API.
  * @param {string} gameName - O nome de invocador do jogador.
  * @param {string} tagLine - A tag do jogador.
+ * @param {string} region - A região de busca (ex: "americas", "europe", "asia").
  * @returns {Promise<object>} Um objeto com os dados do perfil do jogador.
  */
-export const searchPlayer = async (gameName, tagLine) => {
-  const puuidResponse = await API.get(`/riot/puuid?nome=${encodeURIComponent(gameName)}&tag=${encodeURIComponent(tagLine)}`);
+export const searchPlayer = async (gameName, tagLine, region) => {
+  const puuidResponse = await API.get(
+    `/riot/puuid?nome=${encodeURIComponent(gameName)}&tag=${encodeURIComponent(tagLine)}&region=${region}`
+  );
   const puuid = puuidResponse.data.puuid;
 
   if (!puuid) {
@@ -139,4 +142,14 @@ export const removeFavorite = async (favoriteId) => {
 export const getPlayerHistory = async (gameName, tagLine) => {
   const { data } = await API.get(`/riot/history?nome=${encodeURIComponent(gameName)}&tag=${encodeURIComponent(tagLine)}`);
   return data;
+};
+
+/**
+ * Busca os dados de perfil de um jogador usando seu puuid.
+ * @param {string} puuid - O PUUID do jogador.
+ * @returns {Promise<object>} Um objeto com os dados do perfil.
+ */
+export const getProfileByPuuid = async (puuid) => {
+    const { data } = await API.get(`/riot/profile?puuid=${puuid}`);
+    return data;
 };
