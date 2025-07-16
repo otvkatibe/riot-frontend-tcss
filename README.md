@@ -2,17 +2,13 @@
 
 LoL Stats é uma aplicação web interativa construída com React e Tailwind CSS que permite aos usuários buscar estatísticas detalhadas de jogadores de League of Legends. A plataforma oferece funcionalidades de autenticação, busca de perfis, visualização de maestrias de campeões, sistema de favoritos com observações e ranking dos melhores jogadores.
 
+## Interface do Produto
+
+![Resultado final](src/assets/screenshot.png)
+
 ## Arquitetura do Sistema
 
 ![arqt (1)](https://github.com/user-attachments/assets/6c077aea-e0c7-4e08-8684-25c390fd4706)
-
-## Interface do Produto
-
-[Interface1.pdf](https://github.com/user-attachments/files/20937498/Interface1.pdf)
-[Interface2.pdf](https://github.com/user-attachments/files/20937495/Interface2.pdf)
-[Interface3.pdf](https://github.com/user-attachments/files/20937496/Interface3.pdf)
-[Interface4.pdf](https://github.com/user-attachments/files/20937497/Interface4.pdf)
-![Resultado final](src/assets/screenshot.png)
 
 ---
 
